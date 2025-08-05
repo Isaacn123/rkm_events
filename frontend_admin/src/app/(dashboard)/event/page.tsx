@@ -3,14 +3,26 @@ import { useState } from 'react';
 import DynamicCKEditorWrapper from '@/components/DynamicCkeditorWrapper';
 import { PhotoIcon } from '@heroicons/react/24/outline';
 import React from 'react'
-import Link from 'next/link';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { TimePicker } from '@/components/ui/time-picker';
 
+interface EventData {
+  title: string;
+  description: string;
+  date: string;
+  start_date: string;
+  end_date: string;
+  time: string;
+  image_url: string;
+  location: string;
+  author: string;
+  slug: string;
+  published: boolean;
+}
 
-const event = () => {
+const Event = () => {
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EventData>({
     title: '',
     date: '',
     start_date: '',
@@ -144,7 +156,7 @@ const event = () => {
     }
 
     // Prepare the data to send
-    const eventData: any = {
+    const eventData: Partial<EventData> = {
       title: formData.title,
       description: formData.description,
       location: formData.location,
@@ -415,11 +427,11 @@ const event = () => {
 
        <div className='md-5'>
        <label htmlFor="description" className='font-bold block'>Event Description</label>
-      <DynamicCKEditorWrapper 
-        formData={formData as any}
-        setFormData={setFormData as any}
-        MyCustomUploadAdapterPlugin={MyCustomUploadAdapterPlugin}
-     />
+                  <DynamicCKEditorWrapper 
+              formData={formData}
+              setFormData={setFormData}
+              MyCustomUploadAdapterPlugin={MyCustomUploadAdapterPlugin}
+            />
       </div>
 
       <div className='md-5'>
@@ -458,4 +470,4 @@ const event = () => {
   )
 }
 
-export default event
+export default Event

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import DynamicCKEditorWrapper from '@/components/DynamicCkeditorWrapper';
 import { PhotoIcon } from '@heroicons/react/24/outline';
@@ -51,13 +51,65 @@ const EditEventPage = () => {
   // ImgBB API Key
   const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
 
+  const fetchEvent = useCallback(async () => {
+    try {
+      const headers = await getAuthHeaders();
+      console.log('Fetching event with ID:', eventId);
+      console.log('Headers:', headers);
+      
+      // Test if backend is accessible
+      try {
+        const testResponse = await fetch('http://127.0.0.1:8000/api/public/list/', {
+          method: 'GET',
+        });
+        console.log('Backend connectivity test status:', testResponse.status);
+      } catch (testError) {
+        console.error('Backend connectivity test failed:', testError);
+        throw new Error('Backend server is not accessible. Please ensure the Django server is running.');
+      }
+      
+      const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
+        headers,
+      });
+
+      console.log('Fetch response status:', response.status);
+      console.log('Fetch response headers:', response.headers);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fetch error text:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const eventData: Event = await response.json();
+      console.log('Fetched event data:', eventData);
+      
+      setFormData({
+        title: eventData.title || '',
+        date: eventData.date || '',
+        start_date: eventData.start_date || '',
+        end_date: eventData.end_date || '',
+        time: eventData.time || '',
+        description: eventData.description || '',
+        image_url: eventData.image_url || '',
+        location: eventData.location || '',
+        author: eventData.author || '',
+        slug: eventData.slug || '',
+        published: eventData.published || false,
+      });
+    } catch (err) {
+      console.error('Error fetching event:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch event');
+    } finally {
+      setLoading(false);
+    }
+  }, [eventId]);
+
   useEffect(() => {
     if (eventId) {
       fetchEvent();
     }
-  }, [eventId]);
-
-  const fetchEvent = async () => {
+  }, [eventId, fetchEvent]);
     try {
       const headers = await getAuthHeaders();
       console.log('Fetching event with ID:', eventId);
@@ -183,7 +235,7 @@ const EditEventPage = () => {
     }
 
     // Prepare the data to send
-    const eventData: any = {
+    const eventData: Record<string, any> = {
       title: formData.title,
       description: formData.description,
       location: formData.location,
@@ -306,7 +358,7 @@ const EditEventPage = () => {
         let errorData;
         try {
           errorData = JSON.parse(errorText);
-        } catch (parseError) {
+        } catch {
           errorData = { message: errorText || 'Unknown error' };
         }
         

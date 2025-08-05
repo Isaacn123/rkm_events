@@ -11,9 +11,9 @@ const DynamicCKEditor = dynamic(() => import('./ClientCKEditor'), {
 interface FormData {
   description: string;
   title: string;
-  date?: string;
-  start_date?: string;
-  end_date?: string;
+  date: string;
+  start_date: string;
+  end_date: string;
   dates?: string; // Keep for backward compatibility
   time: string;
   image_url: string;

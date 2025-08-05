@@ -12,7 +12,7 @@ interface CalendarProps {
 }
 
 const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
-  ({ mode, selected, onSelect, initialFocus, className, ...props }, ref) => {
+  ({ className, ...props }, ref) => {
     // This is a simplified calendar component
     // In a real implementation, you'd want to use a proper calendar library
     return (

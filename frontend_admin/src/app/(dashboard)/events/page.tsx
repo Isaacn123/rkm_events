@@ -94,13 +94,7 @@ const EventsPage = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+
 
   const getDateDisplay = (event: Event) => {
     // Use the new date_range_display if available, otherwise fall back to the old format

@@ -41,7 +41,7 @@ const LoginPage = () => {
       } else {
         setError('Invalid username or password');
       }
-    } catch (error) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ const LoginPage = () => {
             
             <div className="mt-6 text-center">
               <Link href="/register" className="text-sm text-blue-600 hover:text-blue-500">
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </Link>
             </div>
           </CardContent>
