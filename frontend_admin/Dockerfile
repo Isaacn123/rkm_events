@@ -6,7 +6,15 @@ COPY package.json package-lock.json ./
 
 RUN npm install --legacy-peer-deps
 
-COPY . .
+# Copy all source files explicitly
+COPY src/ ./src/
+COPY public/ ./public/
+COPY next.config.ts ./
+COPY tsconfig.json ./
+COPY components.json ./
+COPY postcss.config.mjs ./
+COPY eslint.config.mjs ./
+COPY next-env.d.ts ./
 
 RUN npm run build 
 
