@@ -1,0 +1,52 @@
+services:
+  nginx:
+    image: nginx:apline
+    container_name: rkm_nginx
+    ports:
+      - "8081:80"
+    volumes:
+        - ./site/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+        - ./site:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+      - backend
+  frontend:
+    build: 
+       context: ./frontend_admin
+       dockerfile: Dockerfile
+    working_dir: /frontend_admin
+    env_file:
+      - ./frontend_amdin/.env.local
+    ports:
+      - "3001:3000"
+    volumes:
+      - /frontend_admin/node_modules
+
+  backend:
+    build: 
+       context: ./backend_admin
+       dockerfile: Dockerfile
+    working_dir: /backend_admin
+    env_file:
+      - ./backend_admin/.env.local
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/backend:ro
+    depends_on:
+      - db
+    command: gunicorn mysite.wsgi:application --bind 0.0.0.0:8001
+  db:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+   
+
