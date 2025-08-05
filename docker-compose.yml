@@ -16,7 +16,7 @@ services:
        dockerfile: Dockerfile
     working_dir: /frontend_admin
     env_file:
-      - ./frontend_amdin/.env.local
+      - ./frontend_admin/.env.local
     ports:
       - "3001:3000"
     volumes:
