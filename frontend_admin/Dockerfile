@@ -1,6 +1,6 @@
 FROM node:18-alpine
 
-WORKDIR /frontend
+WORKDIR /frontend_admin
 
 COPY package.json package-lock.json ./
 
@@ -10,6 +10,6 @@ COPY . .
 
 RUN npm run build 
 
-EXPOSE 4000
+EXPOSE 3001
 
 CMD [ "npm", "start" ]
