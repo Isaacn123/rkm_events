@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import AuthWrapper from '@/components/AuthWrapper';
 import { getAuthHeaders } from '@/lib/auth';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
@@ -246,10 +247,11 @@ const EventsPage = () => {
             <div key={event.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
               {event.image_url && (
                 <div className="relative h-48 overflow-hidden rounded-t-lg">
-                  <img
+                  <Image
                     src={event.image_url}
                     alt={event.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                   <div className="absolute top-2 right-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${

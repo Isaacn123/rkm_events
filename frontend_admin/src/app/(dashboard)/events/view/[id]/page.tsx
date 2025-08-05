@@ -1,7 +1,8 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAuthHeaders } from '@/lib/auth';
 
 interface Event {
@@ -29,13 +30,7 @@ const ViewEventPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (eventId) {
-      fetchEvent();
-    }
-  }, [eventId]);
-
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       const headers = await getAuthHeaders();
       const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
@@ -53,7 +48,13 @@ const ViewEventPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId, fetchEvent]);
 
   const getDateDisplay = (event: Event) => {
     if (event.date_range_display) {
@@ -190,10 +191,11 @@ const ViewEventPage = () => {
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {event.image_url && (
           <div className="relative h-64 overflow-hidden">
-            <img
+            <Image
               src={event.image_url}
               alt={event.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute top-4 right-4">
               <span className={`px-3 py-1 rounded-full text-sm font-semibold ${

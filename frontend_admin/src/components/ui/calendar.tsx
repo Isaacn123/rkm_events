@@ -12,9 +12,12 @@ interface CalendarProps {
 }
 
 const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, mode, selected, onSelect, initialFocus, ...props }, ref) => {
     // This is a simplified calendar component
     // In a real implementation, you'd want to use a proper calendar library
+    // These props are intentionally unused in this placeholder implementation
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = { mode, selected, onSelect, initialFocus };
     return (
       <div
         ref={ref}

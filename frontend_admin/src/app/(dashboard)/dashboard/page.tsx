@@ -1,4 +1,4 @@
-import { QuickActions } from '@/components/mvpblocks/ui/quick-actions';
+
 import { RecentActivity } from '@/components/mvpblocks/ui/recent-activity';
 import { RevenueChart } from '@/components/mvpblocks/ui/revenue-chart';
 import { SystemStatus } from '@/components/mvpblocks/ui/system-status';

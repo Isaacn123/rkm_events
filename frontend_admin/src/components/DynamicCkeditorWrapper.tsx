@@ -25,7 +25,13 @@ interface FormData {
 interface DynamicCKEditorWrapperProps {
   formData:FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-  MyCustomUploadAdapterPlugin: any;
+  MyCustomUploadAdapterPlugin: (editor: {
+    plugins: {
+      get(name: string): {
+        createUploadAdapter?: (loader: unknown) => unknown;
+      };
+    };
+  }) => void;
 }
 
 export default function DynamicCKEditorWrapper({formData, setFormData, MyCustomUploadAdapterPlugin }:DynamicCKEditorWrapperProps) {

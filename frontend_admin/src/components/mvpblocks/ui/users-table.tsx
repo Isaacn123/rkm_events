@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
   TrendingUp,
@@ -12,38 +13,38 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 
-const users = [
-  {
-    id: 1,
-    name: 'Alex Johnson',
-    email: 'alex@example.com',
-    avatar: '/assets/avatars/avatar-1.webp',
-    role: 'Admin',
-    status: 'active',
-    joinDate: '2024-01-15',
-    location: 'New York, US',
-  },
-  {
-    id: 2,
-    name: 'Sarah Chen',
-    email: 'sarah@example.com',
-    avatar: '/assets/avatars/avatar-2.webp',
-    role: 'User',
-    status: 'active',
-    joinDate: '2024-02-20',
-    location: 'San Francisco, US',
-  },
-  {
-    id: 3,
-    name: 'Michael Brown',
-    email: 'michael@example.com',
-    avatar: '/assets/avatars/avatar-3.webp',
-    role: 'Moderator',
-    status: 'inactive',
-    joinDate: '2024-01-08',
-    location: 'London, UK',
-  },
-];
+// const users = [
+//   {
+//     id: 1,
+//     name: 'Alex Johnson',
+//     email: 'alex@example.com',
+//     avatar: '/assets/avatars/avatar-1.webp',
+//     role: 'Admin',
+//     status: 'active',
+//     joinDate: '2024-01-15',
+//     location: 'New York, US',
+//   },
+//   {
+//     id: 2,
+//     name: 'Sarah Chen',
+//     email: 'sarah@example.com',
+//     avatar: '/assets/avatars/avatar-2.webp',
+//     role: 'User',
+//     status: 'active',
+//     joinDate: '2024-02-20',
+//     location: 'San Francisco, US',
+//   },
+//   {
+//     id: 3,
+//     name: 'Michael Brown',
+//     email: 'michael@example.com',
+//     avatar: '/assets/avatars/avatar-3.webp',
+//     role: 'Moderator',
+//     status: 'inactive',
+//     joinDate: '2024-01-08',
+//     location: 'London, UK',
+//   },
+// ];
 
 
 interface ApiUser {
@@ -72,13 +73,7 @@ interface UsersTableProps {
   users?: ApiUser[];
 }
 
-function UserJoinDate({ user }: { user: { joinDate: string } }) {
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(user.joinDate));
-}
+
 
 export const UsersTable = memo(({ onAddUser, users = [] }: UsersTableProps) => {
   // Convert API users to display format
@@ -171,7 +166,7 @@ export const UsersTable = memo(({ onAddUser, users = [] }: UsersTableProps) => {
           >
             <div className="flex w-full items-center gap-4 sm:w-auto">
               <div className="relative">
-                <img
+                <Image
                   src={user.avatar}
                   alt={user.name}
                   width={40}

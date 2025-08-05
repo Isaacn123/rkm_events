@@ -85,7 +85,7 @@ const RegisterPage = () => {
         const errorData = await response.json();
         setError(errorData.message || 'Registration failed. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);

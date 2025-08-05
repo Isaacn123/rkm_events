@@ -8,9 +8,7 @@ export default function DashboardClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleAddUser = () => {
-    console.log('Add user clicked');
-  };
+
 
   const handleExport = () => {
     console.log('Export clicked');

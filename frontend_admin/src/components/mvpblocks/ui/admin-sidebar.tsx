@@ -19,13 +19,7 @@ import {
 import {
   LayoutDashboard,
   Users,
-  BarChart3,
   FileText,
-  Activity,
-  Database,
-  Shield,
-  Zap,
-  Bell,
   Settings,
   Moon,
   Sun,

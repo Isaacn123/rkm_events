@@ -25,10 +25,13 @@ interface Event {
 }
 
 const EditEventPage = () => {
-  const params = useParams();
+  const { id: eventId } = useParams();
   const router = useRouter();
-  const eventId = params.id;
-
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [imageLoading, setImageLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     title: '',
     date: '',
@@ -42,11 +45,6 @@ const EditEventPage = () => {
     slug: '',
     published: false,
   });
-  
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [imageLoading, setImageLoading] = useState(false);
 
   // ImgBB API Key
   const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
@@ -110,58 +108,6 @@ const EditEventPage = () => {
       fetchEvent();
     }
   }, [eventId, fetchEvent]);
-    try {
-      const headers = await getAuthHeaders();
-      console.log('Fetching event with ID:', eventId);
-      console.log('Headers:', headers);
-      
-      // Test if backend is accessible
-      try {
-        const testResponse = await fetch('http://127.0.0.1:8000/api/public/list/', {
-          method: 'GET',
-        });
-        console.log('Backend connectivity test status:', testResponse.status);
-      } catch (testError) {
-        console.error('Backend connectivity test failed:', testError);
-        throw new Error('Backend server is not accessible. Please ensure the Django server is running.');
-      }
-      
-      const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
-        headers,
-      });
-
-      console.log('Fetch response status:', response.status);
-      console.log('Fetch response headers:', response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Fetch error text:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const eventData: Event = await response.json();
-      console.log('Fetched event data:', eventData);
-      
-      setFormData({
-        title: eventData.title || '',
-        date: eventData.date || '',
-        start_date: eventData.start_date || '',
-        end_date: eventData.end_date || '',
-        time: eventData.time || '',
-        description: eventData.description || '',
-        image_url: eventData.image_url || '',
-        location: eventData.location || '',
-        author: eventData.author || '',
-        slug: eventData.slug || '',
-        published: eventData.published || false,
-      });
-    } catch (err) {
-      console.error('Error fetching event:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch event');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const uploadImageToImgBB = async (file: File): Promise<string> => {
     const formData = new FormData();
@@ -210,9 +156,11 @@ const EditEventPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -227,68 +175,35 @@ const EditEventPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Please login first');
-      return;
-    }
+    setError('');
 
-    // Prepare the data to send
-    const eventData: Record<string, any> = {
-      title: formData.title,
-      description: formData.description,
-      location: formData.location,
-      author: formData.author,
-      image_url: formData.image_url,
-      published: formData.published,
-    };
+    try {
+      const headers = await getAuthHeaders();
+      console.log('Submitting event update with ID:', eventId);
+      console.log('Headers:', headers);
+      console.log('Form data:', formData);
 
-    // Add optional fields only if they have values
-    if (formData.time) {
-      eventData.time = formData.time;
-    }
-    
-    // Handle date field - can be ISO format or formatted string
-    if (formData.date) {
-      eventData.date = formData.date;
-    }
-    
-    // Handle date range - if both start and end dates are set, create formatted string
-    if (formData.start_date && formData.end_date) {
-      const startDate = new Date(formData.start_date);
-      const endDate = new Date(formData.end_date);
-      
-      const formatDateWithOrdinal = (date: Date) => {
-        const day = date.getDate();
-        const month = date.toLocaleDateString('en-US', { month: 'long' });
-        const year = date.getFullYear();
-        
-        const getOrdinalSuffix = (day: number): string => {
-          if (day >= 11 && day <= 13) return 'th';
-          switch (day % 10) {
-            case 1: return 'st';
-            case 2: return 'nd';
-            case 3: return 'rd';
-            default: return 'th';
-          }
-        };
-        
-        return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+      // Prepare the data to send
+      const eventData: Record<string, string | boolean | undefined> = {
+        title: formData.title,
+        description: formData.description,
+        location: formData.location,
+        published: formData.published,
       };
-      
-      const startFormatted = formatDateWithOrdinal(startDate);
-      const endFormatted = formatDateWithOrdinal(endDate);
-      
-      if (startDate.getFullYear() === endDate.getFullYear()) {
-        if (startDate.getMonth() === endDate.getMonth()) {
-          const startDay = startDate.getDate();
-          const endDay = endDate.getDate();
-          const month = startDate.toLocaleDateString('en-US', { month: 'long' });
-          const year = startDate.getFullYear();
+
+      // Only include date/time fields if they have values
+      if (formData.start_date && formData.end_date) {
+        eventData.start_date = formData.start_date;
+        eventData.end_date = formData.end_date;
+        
+        // Create formatted date string for the date field
+        const formatDateWithOrdinal = (date: Date) => {
+          const day = date.getDate();
+          const month = date.toLocaleDateString('en-US', { month: 'long' });
+          const year = date.getFullYear();
           
           const getOrdinalSuffix = (day: number): string => {
-            if (day >= 11 && day <= 13) return 'th';
+            if (day > 3 && day < 21) return 'th';
             switch (day % 10) {
               case 1: return 'st';
               case 2: return 'nd';
@@ -297,63 +212,74 @@ const EditEventPage = () => {
             }
           };
           
-          eventData.date = `${startDay}${getOrdinalSuffix(startDay)} to ${endDay}${getOrdinalSuffix(endDay)} ${month} ${year}`;
-        } else {
-          eventData.date = `${startFormatted} to ${endFormatted}`;
+          return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+        };
+
+        try {
+          const startDate = new Date(formData.start_date);
+          const endDate = new Date(formData.end_date);
+          
+          const startFormatted = formatDateWithOrdinal(startDate);
+          
+          if (startDate.getTime() === endDate.getTime()) {
+            // Same day
+            eventData.date = startFormatted;
+          } else {
+            // Different days
+            const getOrdinalSuffix = (day: number): string => {
+              if (day > 3 && day < 21) return 'th';
+              switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+              }
+            };
+            
+            const startDay = startDate.getDate();
+            const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' });
+            const endDay = endDate.getDate();
+            const endMonth = endDate.toLocaleDateString('en-US', { month: 'short' });
+            const year = startDate.getFullYear();
+            
+            eventData.date = `${startDay}${getOrdinalSuffix(startDay)} ${startMonth} to ${endDay}${getOrdinalSuffix(endDay)} ${endMonth} ${year}`;
+          }
+        } catch (error) {
+          console.error('Error formatting date range:', error);
         }
-      } else {
-        eventData.date = `${startFormatted} to ${endFormatted}`;
+      } else if (formData.date) {
+        eventData.date = formData.date;
       }
-    } else if (formData.start_date) {
-      // Single start date
-      const startDate = new Date(formData.start_date);
-      const day = startDate.getDate();
-      const month = startDate.toLocaleDateString('en-US', { month: 'long' });
-      const year = startDate.getFullYear();
-      
-      const getOrdinalSuffix = (day: number): string => {
-        if (day >= 11 && day <= 13) return 'th';
-        switch (day % 10) {
-          case 1: return 'st';
-          case 2: return 'nd';
-          case 3: return 'rd';
-          default: return 'th';
-        }
-      };
-      
-      eventData.date = `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
-    }
-    
-    // Still send start_date and end_date for backend processing
-    if (formData.start_date) {
-      eventData.start_date = formData.start_date;
-    }
-    if (formData.end_date) {
-      eventData.end_date = formData.end_date;
-    }
 
-    console.log('Submitting event data:', eventData);
-    console.log('Event ID:', eventId);
+      if (formData.time) {
+        eventData.time = formData.time;
+      }
 
-    try {
+      if (formData.image_url) {
+        eventData.image_url = formData.image_url;
+      }
+
+      if (formData.author) {
+        eventData.author = formData.author;
+      }
+
+      console.log('Final event data to send:', eventData);
+
       const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          ...headers,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(eventData),
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+      console.log('Update response status:', response.status);
+      console.log('Update response headers:', response.headers);
 
-      if (response.ok) {
-        alert('Event updated successfully!');
-        router.push('/events');
-      } else {
+      if (!response.ok) {
         const errorText = await response.text();
-        console.error('Response text:', errorText);
+        console.error('Update error text:', errorText);
         
         let errorData;
         try {
@@ -362,12 +288,17 @@ const EditEventPage = () => {
           errorData = { message: errorText || 'Unknown error' };
         }
         
-        console.error('API Error:', errorData);
-        alert(`Failed to update event: ${errorData.message || errorData.detail || 'Unknown error'}`);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
-    } catch (error) {
-      console.error('Network Error:', error);
-      alert('Failed to update event. Please check your connection and try again.');
+
+      const updatedEvent = await response.json();
+      console.log('Updated event data:', updatedEvent);
+
+      alert('Event updated successfully!');
+      router.push('/events');
+    } catch (err) {
+      console.error('Error updating event:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update event');
     } finally {
       setSaving(false);
     }
@@ -538,8 +469,8 @@ const EditEventPage = () => {
           <div className='md-5'>
             <label htmlFor="description" className='font-bold block'>Event Description</label>
             <DynamicCKEditorWrapper 
-              formData={formData as any}
-              setFormData={setFormData as any}
+              formData={formData}
+              setFormData={setFormData}
               MyCustomUploadAdapterPlugin={() => {}}
             />
           </div>
