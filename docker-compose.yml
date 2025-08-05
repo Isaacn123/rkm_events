@@ -28,11 +28,11 @@ services:
        dockerfile: Dockerfile
     working_dir: /backend_admin
     env_file:
-      - ./backend_admin/.env.local
+      - .env
     ports:
       - "8001:8000"
     volumes:
-      - ./backend:/backend:ro
+      - ./backend_admin:/backend_admin
     depends_on:
       - db
     command: gunicorn mysite.wsgi:application --bind 0.0.0.0:8001
