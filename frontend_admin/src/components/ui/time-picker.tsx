@@ -61,12 +61,7 @@ export function TimePicker({
     return `${hourNum.toString().padStart(2, '0')}:${minute}`
   }
 
-  const handleTimeChange = () => {
-    if (hour) {
-      const time24 = convertTo24Hour(hour, minute, period)
-      onChange?.(time24)
-    }
-  }
+
 
   const getDisplayText = (): string => {
     if (!hour) return placeholder

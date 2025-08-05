@@ -56,7 +56,7 @@ export function DateRangePicker({
       }
       
       return `${day}${getOrdinalSuffix(day)} ${month} ${year}`
-    } catch (error) {
+    } catch {
       return ''
     }
   }
