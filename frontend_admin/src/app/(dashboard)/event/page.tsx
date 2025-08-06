@@ -254,7 +254,7 @@ const Event = () => {
     }
 
     try {
-      const response = await fetch('http://45.56.120.65:8001/api/create/', {
+      const response = await fetch('http://backend:8000/api/create/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

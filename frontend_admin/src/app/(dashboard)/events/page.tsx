@@ -37,7 +37,7 @@ const EventsPage = () => {
   const fetchEvents = async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch('http://45.56.120.65:8001/api/dashboard/list/', {
+      const response = await fetch('http://backend:8000/api/dashboard/list/', {
         headers,
       });
 
@@ -80,7 +80,7 @@ const EventsPage = () => {
 
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`http://45.56.120.65:8001/api/${eventId}/`, {
+      const response = await fetch(`http://backend:8000/api/${eventId}/`, {
         method: 'DELETE',
         headers,
       });
