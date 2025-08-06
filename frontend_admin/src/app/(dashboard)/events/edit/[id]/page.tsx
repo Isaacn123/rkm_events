@@ -66,7 +66,7 @@ const EditEventPage = () => {
         throw new Error('Backend server is not accessible. Please ensure the Django server is running.');
       }
       
-      const response = await fetch(`http://backend:8000/api/${eventId}/`, {
+      const response = await fetch(`http://45.56.120.65:8001/api/${eventId}/`, {
         headers,
       });
 
