@@ -57,7 +57,7 @@ const EditEventPage = () => {
       
       // Test if backend is accessible
       try {
-        const testResponse = await fetch('http://backend:8000/api/public/list/', {
+        const testResponse = await fetch('http://45.56.120.65:8001/api/public/list/', {
           method: 'GET',
         });
         console.log('Backend connectivity test status:', testResponse.status);
