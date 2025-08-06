@@ -11,6 +11,7 @@ services:
   #     - frontend
   #     - backend
   frontend:
+    image: rkm_events_frontend
     build: 
        context: ./frontend_admin
        dockerfile: Dockerfile
@@ -23,6 +24,7 @@ services:
       - /frontend_admin/node_modules
 
   backend:
+    image: rkm_events_backend
     build: 
        context: ./backend_admin
        dockerfile: Dockerfile
