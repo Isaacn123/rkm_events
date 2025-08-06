@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8001:8000"
+      - "8001:8001"
     volumes:
       - ./backend_admin:/backend_admin
     depends_on:
