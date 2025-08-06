@@ -3,7 +3,7 @@ import json
 
 # Test the login endpoint
 def test_login():
-    url = "http://127.0.0.1:8000/api/user/login/"
+    url = "http://45.56.120.65:8001/api/user/login/"
     data = {
         "username": "admin",  # Replace with your actual username
         "password": "admin"   # Replace with your actual password

@@ -57,7 +57,7 @@ const EditEventPage = () => {
       
       // Test if backend is accessible
       try {
-        const testResponse = await fetch('http://127.0.0.1:8000/api/public/list/', {
+        const testResponse = await fetch('http://45.56.120.65:8001/api/public/list/', {
           method: 'GET',
         });
         console.log('Backend connectivity test status:', testResponse.status);
@@ -66,7 +66,7 @@ const EditEventPage = () => {
         throw new Error('Backend server is not accessible. Please ensure the Django server is running.');
       }
       
-      const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
+      const response = await fetch(`http://45.56.120.65:8001/api/${eventId}/`, {
         headers,
       });
 
@@ -265,7 +265,7 @@ const EditEventPage = () => {
 
       console.log('Final event data to send:', eventData);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
+      const response = await fetch(`http://45.56.120.65:8001/api/${eventId}/`, {
         method: 'PUT',
         headers: {
           ...headers,

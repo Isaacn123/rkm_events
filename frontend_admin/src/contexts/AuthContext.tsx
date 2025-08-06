@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/user/login/', {
+      const response = await fetch('http://45.56.120.65:8001/api/user/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

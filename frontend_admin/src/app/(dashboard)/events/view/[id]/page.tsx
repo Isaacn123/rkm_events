@@ -33,7 +33,7 @@ const ViewEventPage = () => {
   const fetchEvent = useCallback(async () => {
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`http://127.0.0.1:8000/api/${eventId}/`, {
+      const response = await fetch(`http://45.56.120.65:8001/api/${eventId}/`, {
         headers,
       });
 

@@ -5,7 +5,7 @@ export const refreshToken = async (): Promise<string | null> => {
       return null;
     }
 
-    const response = await fetch('http://127.0.0.1:8000/api/user/refresh/', {
+    const response = await fetch('http://45.56.120.65:8001/api/user/refresh/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
