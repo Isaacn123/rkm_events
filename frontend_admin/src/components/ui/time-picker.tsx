@@ -61,8 +61,6 @@ export function TimePicker({
     return `${hourNum.toString().padStart(2, '0')}:${minute}`
   }
 
-
-
   const getDisplayText = (): string => {
     if (!hour) return placeholder
     
@@ -72,26 +70,26 @@ export function TimePicker({
 
   const handleHourChange = (newHour: string) => {
     setHour(newHour)
-    if (newHour && minute) {
-      const time24 = convertTo24Hour(newHour, minute, period)
-      onChange?.(time24)
-    }
   }
 
   const handleMinuteChange = (newMinute: string) => {
     setMinute(newMinute)
-    if (hour && newMinute) {
-      const time24 = convertTo24Hour(hour, newMinute, period)
-      onChange?.(time24)
-    }
   }
 
   const handlePeriodChange = (newPeriod: 'AM' | 'PM') => {
     setPeriod(newPeriod)
+  }
+
+  const handleDone = () => {
     if (hour && minute) {
-      const time24 = convertTo24Hour(hour, minute, newPeriod)
+      const time24 = convertTo24Hour(hour, minute, period)
       onChange?.(time24)
     }
+    setIsOpen(false)
+  }
+
+  const handleClose = () => {
+    setIsOpen(false)
   }
 
   // Don't render the component until client-side to avoid hydration mismatch
@@ -168,10 +166,17 @@ export function TimePicker({
               </div>
             </div>
             
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-2">
               <Button
                 size="sm"
-                onClick={() => setIsOpen(false)}
+                variant="outline"
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleDone}
               >
                 Done
               </Button>
