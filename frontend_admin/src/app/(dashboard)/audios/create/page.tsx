@@ -94,7 +94,7 @@ const CreateAudioPage = () => {
         const errorData = await response.json()
         setMessage(`Error: ${errorData.message || 'Failed to upload audio'}`)
       }
-    } catch (error) {
+    } catch {
       setMessage('Error uploading audio')
     } finally {
       setLoading(false)

@@ -2,9 +2,9 @@
 
 import AuthWrapper from '@/components/AuthWrapper'
 import Link from 'next/link'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { API_ENDPOINTS, getAuthHeaders, getAuthHeadersForUpload } from '@/lib/api'
+import { API_ENDPOINTS, getAuthHeaders } from '@/lib/api'
 
 interface Audio {
   id: number
@@ -21,7 +21,8 @@ interface Audio {
   published: boolean
 }
 
-const EditAudioPage = () => {
+// Separate component for search params logic
+const EditAudioContent = () => {
   const searchParams = useSearchParams()
   const audioId = searchParams.get('id')
   
@@ -29,15 +30,9 @@ const EditAudioPage = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
-  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
 
-  useEffect(() => {
-    if (audioId) {
-      fetchAudio()
-    }
-  }, [audioId])
 
-  const fetchAudio = async () => {
+  const fetchAudio = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(API_ENDPOINTS.AUDIOS.UPDATE(audioId || ''), {
@@ -49,12 +44,18 @@ const EditAudioPage = () => {
       } else {
         setMessage('Error loading audio')
       }
-    } catch (error) {
+    } catch {
       setMessage('Error loading audio')
     } finally {
       setLoading(false)
     }
-  }
+  }, [audioId])
+
+  useEffect(() => {
+    if (audioId) {
+      fetchAudio()
+    }
+  }, [audioId, fetchAudio])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,7 +77,7 @@ const EditAudioPage = () => {
       } else {
         setMessage('Error updating audio')
       }
-    } catch (error) {
+    } catch {
       setMessage('Error updating audio')
     } finally {
       setSaving(false)
@@ -91,11 +92,7 @@ const EditAudioPage = () => {
     } : null)
   }
 
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCoverImageFile(e.target.files[0])
-    }
-  }
+
 
   if (loading) {
     return (
@@ -186,7 +183,6 @@ const EditAudioPage = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleCoverImageChange}
                   disabled={!audio.title}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     audio.title 
@@ -216,19 +212,6 @@ const EditAudioPage = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter artist name..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Artist
-                </label>
-                <input
-                  type="text"
-                  name="artist"
-                  value={audio.artist || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -304,8 +287,7 @@ const EditAudioPage = () => {
                 </label>
 
                 <label className="flex items-center">
-                  <input
-                    type="checkbox"
+                  <input type="checkbox"
                     name="is_featured"
                     checked={audio.is_featured}
                     onChange={handleInputChange}
@@ -356,6 +338,21 @@ const EditAudioPage = () => {
         </div>
       </div>
     </AuthWrapper>
+  )
+}
+
+// Main component with Suspense boundary
+const EditAudioPage = () => {
+  return (
+    <Suspense fallback={
+      <AuthWrapper>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Loading...</div>
+        </div>
+      </AuthWrapper>
+    }>
+      <EditAudioContent />
+    </Suspense>
   )
 }
 
