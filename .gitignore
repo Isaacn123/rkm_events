@@ -1,3 +1,6 @@
 
 app_env/
 .env*
+
+frontend_admin copy/
+/frontend_admin copy/
