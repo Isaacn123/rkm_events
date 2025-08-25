@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-6=*jqm!fanfv4@7nxyu%(_9hba%3jfmc6&fb$%6d*18#ki1(p-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','127.0.0.1','45.56.120.65']
+ALLOWED_HOSTS = ['0.0.0.0','127.0.0.1','localhost','45.56.120.65']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'user',
     'events',
+    'audios',
 ]
 
 MIDDLEWARE = [
@@ -81,16 +82,16 @@ WSGI_APPLICATION = 'backend_admin.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'rkm_events_dashboard',
-        # 'USER': 'root',
-        # 'PASSWORD': '',
-        # 'HOST': 'localhost',
-        # 'PORT': '3306',
-        'NAME': os.environ['MYSQL_DATABASE'],
-        'USER': os.environ['MYSQL_USER'],
-        'PASSWORD': os.environ['MYSQL_PASSWORD'],
-        'HOST': os.environ['MYSQL_HOST'],
-        'PORT': os.environ.get('MYSQL_PORT', '3306'),
+        'NAME': 'rkm_events_dashboard_new',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        # 'NAME': os.environ['MYSQL_DATABASE'],
+        # 'USER': os.environ['MYSQL_USER'],
+        # 'PASSWORD': os.environ['MYSQL_PASSWORD'],
+        # 'HOST': os.environ['MYSQL_HOST'],
+        # 'PORT': os.environ.get('MYSQL_PORT', '3306'),
         'OPTIONS': {
             'unix_socket': '/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock',
         },
