@@ -33,7 +33,6 @@ const menuItems = [
   { title: 'Users', icon: Users, href: 'users' },
   { title: 'Events', icon: Calendar, href: 'events' },
   { title: 'Add Event', icon: FileText, href: 'event' },
-   { title: 'Audios', icon: FileText, href: 'audios' },
   // { title: 'Activity', icon: Activity, href: '#activity' },
   // { title: 'Database', icon: Database, href: '#database' },
   // { title: 'Security', icon: Shield, href: '#security' },
