@@ -31,7 +31,7 @@ const UsersPage = () => {
       
       console.log('Fetching users with headers:', headers);
       
-      const response = await fetch('http://127.0.0.1:8000/api/user/list/', {
+      const response = await fetch('http://45.56.120.65:8001/api/user/list/', {
         headers,
       });
 
@@ -84,7 +84,7 @@ const UsersPage = () => {
 
     try {
       const headers = await getAuthHeaders();
-      const response = await fetch(`http://127.0.0.1:8000/api/user/${userId}/`, {
+      const response = await fetch(`http://45.56.120.65:8001/api/user/${userId}/`, {
         method: 'DELETE',
         headers,
       });
