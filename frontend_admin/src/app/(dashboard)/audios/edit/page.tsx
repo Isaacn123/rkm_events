@@ -4,7 +4,7 @@ import AuthWrapper from '@/components/AuthWrapper'
 import Link from 'next/link'
 import React, { useState, useEffect, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { API_ENDPOINTS, getAuthHeaders } from '@/lib/api'
+import { API_ENDPOINTS, getAuthHeaders, getAuthHeadersForUpload } from '@/lib/api'
 
 interface Audio {
   id: number
@@ -30,6 +30,7 @@ const EditAudioContent = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
 
 
   const fetchAudio = useCallback(async () => {
@@ -66,14 +67,32 @@ const EditAudioContent = () => {
 
     try {
       const token = localStorage.getItem('token')
+      
+      // Create FormData for file uploads
+      const formData = new FormData()
+      
+      // Add cover image file if selected
+      if (coverImageFile) {
+        formData.append('cover_image_file', coverImageFile)
+      }
+      
+      // Add other audio data
+      Object.keys(audio).forEach(key => {
+        if (key !== 'cover_image' && key !== 'cover_image_name') {
+          formData.append(key, audio[key as keyof typeof audio]?.toString() || '')
+        }
+      })
+
       const response = await fetch(API_ENDPOINTS.AUDIOS.UPDATE(audioId || ''), {
         method: 'PATCH',
-        headers: getAuthHeaders(token || ''),
-        body: JSON.stringify(audio)
+        headers: getAuthHeadersForUpload(token || ''),
+        body: formData
       })
 
       if (response.ok) {
         setMessage('Audio updated successfully!')
+        // Refresh the audio data to show updated cover image
+        fetchAudio()
       } else {
         setMessage('Error updating audio')
       }
@@ -90,6 +109,12 @@ const EditAudioContent = () => {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     } : null)
+  }
+
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCoverImageFile(e.target.files[0])
+    }
   }
 
 
@@ -183,6 +208,7 @@ const EditAudioContent = () => {
                 <input
                   type="file"
                   accept="image/*"
+                  onChange={handleCoverImageChange}
                   disabled={!audio.title}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     audio.title 
