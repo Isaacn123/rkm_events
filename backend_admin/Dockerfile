@@ -13,4 +13,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "backend_admin.wsgi:application", "--bind", "0.0.0.0:8001"]
+CMD ["gunicorn", "backend_admin.wsgi:application", "--bind", "0.0.0.0:8001", "--timeout", "600", "--workers", "1"]
