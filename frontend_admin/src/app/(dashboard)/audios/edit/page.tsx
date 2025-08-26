@@ -76,10 +76,16 @@ const EditAudioContent = () => {
         formData.append('cover_image_file', coverImageFile)
       }
       
-      // Add other audio data
-      Object.keys(audio).forEach(key => {
-        if (key !== 'cover_image' && key !== 'cover_image_name') {
-          formData.append(key, audio[key as keyof typeof audio]?.toString() || '')
+      // Add other audio data (exclude read-only and complex fields)
+      const fieldsToUpdate = [
+        'title', 'description', 'artist', 'album', 'genre', 'year',
+        'is_public', 'is_featured', 'published'
+      ]
+      
+      fieldsToUpdate.forEach(key => {
+        const value = audio[key as keyof typeof audio]
+        if (value !== undefined) {
+          formData.append(key, value.toString())
         }
       })
 
