@@ -39,7 +39,9 @@ export const RevenueChart = memo(() => {
       if (audioResponse.ok) {
         const audioData = await audioResponse.json();
         const audios = Array.isArray(audioData) ? audioData : (audioData.results || []);
+        console.log('RevenueChart - Audio data:', audios.length, 'audios'); // Debug log
         const audioUploads = generateMonthlyData(audios, 'created_at');
+        console.log('RevenueChart - Audio monthly data:', audioUploads); // Debug log
         setAnalyticsData(prev => ({ ...prev, audioUploads }));
       }
 
@@ -48,7 +50,9 @@ export const RevenueChart = memo(() => {
       if (userResponse.ok) {
         const userData = await userResponse.json();
         const users = Array.isArray(userData) ? userData : (userData.results || userData.users || []);
+        console.log('RevenueChart - User data:', users.length, 'users'); // Debug log
         const userRegistrations = generateMonthlyData(users, 'date_joined');
+        console.log('RevenueChart - User monthly data:', userRegistrations); // Debug log
         setAnalyticsData(prev => ({ ...prev, userRegistrations }));
       }
 
@@ -57,7 +61,9 @@ export const RevenueChart = memo(() => {
       if (eventResponse.ok) {
         const eventData = await eventResponse.json();
         const events = Array.isArray(eventData) ? eventData : (eventData.results || []);
+        console.log('RevenueChart - Event data:', events.length, 'events'); // Debug log
         const eventCreations = generateMonthlyData(events, 'created_at');
+        console.log('RevenueChart - Event monthly data:', eventCreations); // Debug log
         setAnalyticsData(prev => ({ ...prev, eventCreations }));
       }
 

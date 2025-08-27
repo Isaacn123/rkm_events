@@ -75,37 +75,58 @@ export default function DashboardStats() {
         setUserCount(usersData.length);
       }
 
-      // Fetch audio stats
-      const audioResponse = await fetch(API_ENDPOINTS.AUDIOS.STATISTICS, {
+      // Fetch audio stats - get the list and count them
+      const audioResponse = await fetch(API_ENDPOINTS.AUDIOS.ADMIN, {
         headers,
       });
 
       if (audioResponse.ok) {
         const audioData = await audioResponse.json();
-        console.log('Audio statistics response:', audioData); // Debug log
-        setAudioStats(audioData);
+        console.log('Audio list response:', audioData); // Debug log
+        
+        // Handle different response formats
+        let audiosData: any[] = [];
+        if (Array.isArray(audioData)) {
+          audiosData = audioData;
+        } else if (audioData.results && Array.isArray(audioData.results)) {
+          audiosData = audioData.results;
+        }
+        
+        const totalAudios = audiosData.length;
+        const publishedAudios = audiosData.filter((audio: any) => audio.published === true).length;
+        const featuredAudios = audiosData.filter((audio: any) => audio.is_featured === true).length;
+        
+        setAudioStats({
+          total_audios: totalAudios,
+          published_audios: publishedAudios,
+          featured_audios: featuredAudios
+        });
       } else {
-        console.error('Audio statistics response not ok:', audioResponse.status, audioResponse.statusText);
+        console.error('Audio list response not ok:', audioResponse.status, audioResponse.statusText);
       }
 
-      // Fetch event stats
+      // Fetch event stats - get the list and count them
       const eventResponse = await fetch(API_ENDPOINTS.EVENTS.LIST, {
         headers,
       });
 
       if (eventResponse.ok) {
         const eventData = await eventResponse.json();
+        console.log('Event list response:', eventData); // Debug log
         
-        // Calculate event stats from the list
-        const events = Array.isArray(eventData) ? eventData : (eventData.results || []);
+        // Handle different response formats
+        let eventsData: any[] = [];
+        if (Array.isArray(eventData)) {
+          eventsData = eventData;
+        } else if (eventData.results && Array.isArray(eventData.results)) {
+          eventsData = eventData.results;
+        }
+        
         const now = new Date();
-        
-        const totalEvents = events.length;
-        const publishedEvents = events.filter((event: Record<string, unknown>) => 
-          event.published === true
-        ).length;
-        const upcomingEvents = events.filter((event: Record<string, unknown>) => 
-          new Date((event.end_date || event.date) as string) > now
+        const totalEvents = eventsData.length;
+        const publishedEvents = eventsData.filter((event: any) => event.published === true).length;
+        const upcomingEvents = eventsData.filter((event: any) => 
+          new Date(event.end_date || event.date) > now
         ).length;
         const pastEvents = totalEvents - upcomingEvents;
         
@@ -115,6 +136,8 @@ export default function DashboardStats() {
           upcoming_events: upcomingEvents,
           past_events: pastEvents
         });
+      } else {
+        console.error('Event list response not ok:', eventResponse.status, eventResponse.statusText);
       }
 
     } catch (error) {
