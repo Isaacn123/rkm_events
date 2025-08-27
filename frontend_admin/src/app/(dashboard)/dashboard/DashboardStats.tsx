@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DashboardCard } from '@/components/mvpblocks/ui/dashboard-card';
 import { getAuthHeaders } from '@/lib/auth';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface User {
   id: number;
@@ -14,42 +15,91 @@ interface User {
   is_active: boolean;
 }
 
+interface AudioStats {
+  total_audios: number;
+  published_audios: number;
+  featured_audios: number;
+  total_duration: string;
+}
+
+interface EventStats {
+  total_events: number;
+  upcoming_events: number;
+  past_events: number;
+}
+
 export default function DashboardStats() {
   const [userCount, setUserCount] = useState(0);
+  const [audioStats, setAudioStats] = useState<AudioStats | null>(null);
+  const [eventStats, setEventStats] = useState<EventStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUserStats();
+    fetchAllStats();
   }, []);
 
-  const fetchUserStats = async () => {
+  const fetchAllStats = async () => {
     try {
       const headers = await getAuthHeaders();
       
-      const response = await fetch('http://45.56.120.65:8001/api/user/list/', {
+      // Fetch user stats
+      const userResponse = await fetch('http://45.56.120.65:8001/api/user/list/', {
         headers,
       });
 
-      if (!response.ok) {
-        console.error('Failed to fetch user stats');
-        return;
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        
+        // Handle different response formats
+        let usersData: User[] = [];
+        if (Array.isArray(userData)) {
+          usersData = userData;
+        } else if (userData.results && Array.isArray(userData.results)) {
+          usersData = userData.results;
+        } else if (userData.users && Array.isArray(userData.users)) {
+          usersData = userData.users;
+        }
+
+        setUserCount(usersData.length);
       }
 
-      const data = await response.json();
-      
-      // Handle different response formats
-      let usersData: User[] = [];
-      if (Array.isArray(data)) {
-        usersData = data;
-      } else if (data.results && Array.isArray(data.results)) {
-        usersData = data.results;
-      } else if (data.users && Array.isArray(data.users)) {
-        usersData = data.users;
+      // Fetch audio stats
+      const audioResponse = await fetch(API_ENDPOINTS.AUDIOS.STATISTICS, {
+        headers,
+      });
+
+      if (audioResponse.ok) {
+        const audioData = await audioResponse.json();
+        setAudioStats(audioData);
       }
 
-      setUserCount(usersData.length);
+      // Fetch event stats
+      const eventResponse = await fetch(API_ENDPOINTS.EVENTS.LIST, {
+        headers,
+      });
+
+      if (eventResponse.ok) {
+        const eventData = await eventResponse.json();
+        
+        // Calculate event stats from the list
+        const events = Array.isArray(eventData) ? eventData : (eventData.results || []);
+        const now = new Date();
+        
+        const totalEvents = events.length;
+        const upcomingEvents = events.filter((event: any) => 
+          new Date(event.end_date || event.date) > now
+        ).length;
+        const pastEvents = totalEvents - upcomingEvents;
+        
+        setEventStats({
+          total_events: totalEvents,
+          upcoming_events: upcomingEvents,
+          past_events: pastEvents
+        });
+      }
+
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+      console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
     }
@@ -66,28 +116,28 @@ export default function DashboardStats() {
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'Revenue',
-      value: '$45,678',
-      change: '+8.2%',
+      title: 'Total Audios',
+      value: loading ? '...' : (audioStats?.total_audios || 0).toString(),
+      change: `${audioStats?.published_audios || 0} published`,
       changeType: 'positive' as const,
       iconName: 'chart-bar' as const,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
-      title: 'Active Sessions',
-      value: '2,456',
-      change: '+15%',
+      title: 'Total Events',
+      value: loading ? '...' : (eventStats?.total_events || 0).toString(),
+      change: `${eventStats?.upcoming_events || 0} upcoming`,
       changeType: 'positive' as const,
       iconName: 'chart-bar' as const,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
     },
     {
-      title: 'Page Views',
-      value: '34,567',
-      change: '-2.4%',
-      changeType: 'negative' as const,
+      title: 'Featured Content',
+      value: loading ? '...' : (audioStats?.featured_audios || 0).toString(),
+      change: 'Featured audios',
+      changeType: 'positive' as const,
       iconName: 'chart-bar' as const,
       color: 'text-orange-500',
       bgColor: 'bg-orange-500/10',
