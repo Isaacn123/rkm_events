@@ -19,11 +19,14 @@ interface AudioStats {
   total_audios: number;
   published_audios: number;
   featured_audios: number;
-  total_duration: string;
+  public_audios?: number;
+  total_duration?: string;
+  recent_uploads?: any[];
 }
 
 interface EventStats {
   total_events: number;
+  published_events: number;
   upcoming_events: number;
   past_events: number;
 }
@@ -40,7 +43,9 @@ export default function DashboardStats() {
 
   const fetchAllStats = async () => {
     try {
+      console.log('Fetching stats...'); // Debug log
       const headers = await getAuthHeaders();
+      console.log('Headers:', headers); // Debug log
       
       // Fetch user stats
       const userResponse = await fetch('http://45.56.120.65:8001/api/user/list/', {
@@ -70,7 +75,10 @@ export default function DashboardStats() {
 
       if (audioResponse.ok) {
         const audioData = await audioResponse.json();
+        console.log('Audio statistics response:', audioData); // Debug log
         setAudioStats(audioData);
+      } else {
+        console.error('Audio statistics response not ok:', audioResponse.status, audioResponse.statusText);
       }
 
       // Fetch event stats
@@ -86,6 +94,9 @@ export default function DashboardStats() {
         const now = new Date();
         
         const totalEvents = events.length;
+        const publishedEvents = events.filter((event: Record<string, unknown>) => 
+          event.published === true
+        ).length;
         const upcomingEvents = events.filter((event: Record<string, unknown>) => 
           new Date((event.end_date || event.date) as string) > now
         ).length;
@@ -93,6 +104,7 @@ export default function DashboardStats() {
         
         setEventStats({
           total_events: totalEvents,
+          published_events: publishedEvents,
           upcoming_events: upcomingEvents,
           past_events: pastEvents
         });
@@ -116,18 +128,18 @@ export default function DashboardStats() {
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'Total Audios',
-      value: loading ? '...' : (audioStats?.total_audios || 0).toString(),
-      change: `${audioStats?.published_audios || 0} published`,
+      title: 'Published Audios',
+      value: loading ? '...' : (audioStats?.published_audios || 0).toString(),
+      change: `${audioStats?.total_audios || 0} total`,
       changeType: 'positive' as const,
       iconName: 'chart-bar' as const,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
-      title: 'Total Events',
-      value: loading ? '...' : (eventStats?.total_events || 0).toString(),
-      change: `${eventStats?.upcoming_events || 0} upcoming`,
+      title: 'Published Events',
+      value: loading ? '...' : (eventStats?.published_events || 0).toString(),
+      change: `${eventStats?.total_events || 0} total`,
       changeType: 'positive' as const,
       iconName: 'chart-bar' as const,
       color: 'text-purple-500',
