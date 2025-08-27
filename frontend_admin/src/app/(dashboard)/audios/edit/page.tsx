@@ -2,6 +2,7 @@
 
 import AuthWrapper from '@/components/AuthWrapper'
 import Link from 'next/link'
+import Image from 'next/image'
 import React, { useState, useEffect, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { API_ENDPOINTS, getAuthHeaders, getAuthHeadersForUpload } from '@/lib/api'
@@ -197,9 +198,11 @@ const EditAudioContent = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Current Cover Image
                   </label>
-                  <img 
+                  <Image 
                     src={audio.cover_image} 
                     alt={audio.cover_image_name || audio.title}
+                    width={128}
+                    height={128}
                     className="w-32 h-32 object-cover rounded-lg border"
                   />
                 </div>

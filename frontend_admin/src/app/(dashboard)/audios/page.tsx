@@ -2,6 +2,7 @@
 
 import AuthWrapper from '@/components/AuthWrapper'
 import Link from 'next/link'
+import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
 import { API_ENDPOINTS, getAuthHeaders } from '@/lib/api'
 
@@ -156,9 +157,11 @@ const AudiosPage = () => {
               {/* Cover Image */}
               {audio.cover_image && (
                 <div className="mb-4">
-                  <img 
+                  <Image 
                     src={audio.cover_image} 
                     alt={audio.cover_image_name || audio.title}
+                    width={400}
+                    height={192}
                     className="w-full h-48 object-cover rounded-lg"
                   />
                 </div>

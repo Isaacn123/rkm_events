@@ -1,9 +1,9 @@
 'use client';
 
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Calendar, Music, Users } from 'lucide-react';
+import { Calendar, Music, Users } from 'lucide-react';
 import { getAuthHeaders } from '@/lib/auth';
 import { API_ENDPOINTS } from '@/lib/api';
 
@@ -30,15 +30,7 @@ export const RevenueChart = memo(() => {
     eventCreations: []
   });
 
-  useEffect(() => {
-    fetchAnalyticsData();
-  }, []);
-
-  useEffect(() => {
-    updateChartData();
-  }, [chartType, analyticsData]);
-
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     try {
       const headers = await getAuthHeaders();
       
@@ -47,7 +39,7 @@ export const RevenueChart = memo(() => {
       if (audioResponse.ok) {
         const audioData = await audioResponse.json();
         const audios = Array.isArray(audioData) ? audioData : (audioData.results || []);
-        const audioUploads = generateMonthlyData(audios, 'created_at', 'Audio Uploads');
+        const audioUploads = generateMonthlyData(audios, 'created_at');
         setAnalyticsData(prev => ({ ...prev, audioUploads }));
       }
 
@@ -56,7 +48,7 @@ export const RevenueChart = memo(() => {
       if (userResponse.ok) {
         const userData = await userResponse.json();
         const users = Array.isArray(userData) ? userData : (userData.results || userData.users || []);
-        const userRegistrations = generateMonthlyData(users, 'date_joined', 'User Registrations');
+        const userRegistrations = generateMonthlyData(users, 'date_joined');
         setAnalyticsData(prev => ({ ...prev, userRegistrations }));
       }
 
@@ -65,7 +57,7 @@ export const RevenueChart = memo(() => {
       if (eventResponse.ok) {
         const eventData = await eventResponse.json();
         const events = Array.isArray(eventData) ? eventData : (eventData.results || []);
-        const eventCreations = generateMonthlyData(events, 'created_at', 'Event Creations');
+        const eventCreations = generateMonthlyData(events, 'created_at');
         setAnalyticsData(prev => ({ ...prev, eventCreations }));
       }
 
@@ -74,21 +66,25 @@ export const RevenueChart = memo(() => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const generateMonthlyData = (data: any[], dateField: string, label: string): ChartData[] => {
+  const generateMonthlyData = (data: Array<Record<string, unknown>>, dateField: string): ChartData[] => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     const colors = ['bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-cyan-500'];
     
     return months.map((month, index) => {
       const monthData = data.filter(item => {
-        const date = new Date(item[dateField]);
+        const dateValue = item[dateField];
+        if (typeof dateValue !== 'string' && typeof dateValue !== 'number') return false;
+        const date = new Date(dateValue);
         return date.getMonth() === index;
       });
       
       const value = monthData.length;
       const prevMonth = index > 0 ? data.filter(item => {
-        const date = new Date(item[dateField]);
+        const dateValue = item[dateField];
+        if (typeof dateValue !== 'string' && typeof dateValue !== 'number') return false;
+        const date = new Date(dateValue);
         return date.getMonth() === index - 1;
       }).length : 0;
       
@@ -103,7 +99,7 @@ export const RevenueChart = memo(() => {
     });
   };
 
-  const updateChartData = () => {
+  const updateChartData = useCallback(() => {
     switch (chartType) {
       case 'audio':
         setChartData(analyticsData.audioUploads);
@@ -115,7 +111,15 @@ export const RevenueChart = memo(() => {
         setChartData(analyticsData.eventCreations);
         break;
     }
-  };
+  }, [chartType, analyticsData]);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [fetchAnalyticsData]);
+
+  useEffect(() => {
+    updateChartData();
+  }, [updateChartData]);
 
   const getChartTitle = () => {
     switch (chartType) {

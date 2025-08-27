@@ -86,8 +86,8 @@ export default function DashboardStats() {
         const now = new Date();
         
         const totalEvents = events.length;
-        const upcomingEvents = events.filter((event: any) => 
-          new Date(event.end_date || event.date) > now
+        const upcomingEvents = events.filter((event: Record<string, unknown>) => 
+          new Date((event.end_date || event.date) as string) > now
         ).length;
         const pastEvents = totalEvents - upcomingEvents;
         
