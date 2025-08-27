@@ -22,6 +22,23 @@ interface RecentUpload {
   created_at: string;
 }
 
+interface AudioItem {
+  id: number;
+  title: string;
+  published: boolean;
+  is_featured: boolean;
+  created_at: string;
+}
+
+interface EventItem {
+  id: number;
+  title: string;
+  published: boolean;
+  end_date?: string;
+  date?: string;
+  created_at: string;
+}
+
 interface AudioStats {
   total_audios: number;
   published_audios: number;
@@ -85,16 +102,16 @@ export default function DashboardStats() {
         console.log('Audio list response:', audioData); // Debug log
         
         // Handle different response formats
-        let audiosData: any[] = [];
+        let audiosData: AudioItem[] = [];
         if (Array.isArray(audioData)) {
-          audiosData = audioData;
+          audiosData = audioData as AudioItem[];
         } else if (audioData.results && Array.isArray(audioData.results)) {
-          audiosData = audioData.results;
+          audiosData = audioData.results as AudioItem[];
         }
         
         const totalAudios = audiosData.length;
-        const publishedAudios = audiosData.filter((audio: any) => audio.published === true).length;
-        const featuredAudios = audiosData.filter((audio: any) => audio.is_featured === true).length;
+        const publishedAudios = audiosData.filter((audio: AudioItem) => audio.published === true).length;
+        const featuredAudios = audiosData.filter((audio: AudioItem) => audio.is_featured === true).length;
         
         setAudioStats({
           total_audios: totalAudios,
@@ -115,19 +132,21 @@ export default function DashboardStats() {
         console.log('Event list response:', eventData); // Debug log
         
         // Handle different response formats
-        let eventsData: any[] = [];
+        let eventsData: EventItem[] = [];
         if (Array.isArray(eventData)) {
-          eventsData = eventData;
+          eventsData = eventData as EventItem[];
         } else if (eventData.results && Array.isArray(eventData.results)) {
-          eventsData = eventData.results;
+          eventsData = eventData.results as EventItem[];
         }
         
         const now = new Date();
         const totalEvents = eventsData.length;
-        const publishedEvents = eventsData.filter((event: any) => event.published === true).length;
-        const upcomingEvents = eventsData.filter((event: any) => 
-          new Date(event.end_date || event.date) > now
-        ).length;
+        const publishedEvents = eventsData.filter((event: EventItem) => event.published === true).length;
+        const upcomingEvents = eventsData.filter((event: EventItem) => {
+          const eventDate = event.end_date || event.date;
+          if (!eventDate) return false;
+          return new Date(eventDate) > now;
+        }).length;
         const pastEvents = totalEvents - upcomingEvents;
         
         setEventStats({
