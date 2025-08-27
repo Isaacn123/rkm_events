@@ -15,13 +15,20 @@ interface User {
   is_active: boolean;
 }
 
+interface RecentUpload {
+  id: number;
+  title: string;
+  artist: string;
+  created_at: string;
+}
+
 interface AudioStats {
   total_audios: number;
   published_audios: number;
   featured_audios: number;
   public_audios?: number;
   total_duration?: string;
-  recent_uploads?: any[];
+  recent_uploads?: RecentUpload[];
 }
 
 interface EventStats {
