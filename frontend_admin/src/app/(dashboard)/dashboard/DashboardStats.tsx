@@ -130,24 +130,39 @@ export default function DashboardStats() {
       if (eventResponse.ok) {
         const eventData = await eventResponse.json();
         console.log('Event list response:', eventData); // Debug log
+        console.log('Event data type:', typeof eventData); // Debug log
+        console.log('Event data keys:', Object.keys(eventData || {})); // Debug log
         
         // Handle different response formats
         let eventsData: EventItem[] = [];
         if (Array.isArray(eventData)) {
           eventsData = eventData as EventItem[];
+          console.log('Events data is array, length:', eventsData.length); // Debug log
         } else if (eventData.results && Array.isArray(eventData.results)) {
           eventsData = eventData.results as EventItem[];
+          console.log('Events data from results, length:', eventsData.length); // Debug log
+        } else {
+          console.log('No valid events data found'); // Debug log
+        }
+        
+        if (eventsData.length > 0) {
+          console.log('First event sample:', eventsData[0]); // Debug log
         }
         
         const now = new Date();
         const totalEvents = eventsData.length;
-        const publishedEvents = eventsData.filter((event: EventItem) => event.published === true).length;
+        const publishedEvents = eventsData.filter((event: EventItem) => {
+          console.log('Checking event published:', event.title, event.published); // Debug log
+          return event.published === true;
+        }).length;
         const upcomingEvents = eventsData.filter((event: EventItem) => {
           const eventDate = event.end_date || event.date;
           if (!eventDate) return false;
           return new Date(eventDate) > now;
         }).length;
         const pastEvents = totalEvents - upcomingEvents;
+        
+        console.log('Event stats calculated:', { totalEvents, publishedEvents, upcomingEvents, pastEvents }); // Debug log
         
         setEventStats({
           total_events: totalEvents,

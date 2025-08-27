@@ -23,10 +23,10 @@ export const API_ENDPOINTS = {
   
   // Events endpoints
   EVENTS: {
-    LIST: `${API_BASE_URL}/api/events/`,
-    CREATE: `${API_BASE_URL}/api/events/`,
-    UPDATE: (id: string) => `${API_BASE_URL}/api/events/${id}/`,
-    DELETE: (id: string) => `${API_BASE_URL}/api/events/${id}/`,
+    LIST: `${API_BASE_URL}/api/list/`,
+    CREATE: `${API_BASE_URL}/api/create/`,
+    UPDATE: (id: string) => `${API_BASE_URL}/api/${id}/`,
+    DELETE: (id: string) => `${API_BASE_URL}/api/${id}/`,
   },
   
   // User endpoints
