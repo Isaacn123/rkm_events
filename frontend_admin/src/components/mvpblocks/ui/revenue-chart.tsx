@@ -75,23 +75,42 @@ export const RevenueChart = memo(() => {
   }, []);
 
   const generateMonthlyData = (data: Array<Record<string, unknown>>, dateField: string): ChartData[] => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    // Generate dynamic months - last 6 months from current month
+    const currentDate = new Date();
+    const months: string[] = [];
     const colors = ['bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-cyan-500'];
     
+    for (let i = 5; i >= 0; i--) {
+      const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthName = monthDate.toLocaleDateString('en-US', { month: 'short' });
+      months.push(monthName);
+    }
+    
     return months.map((month, index) => {
+      // Calculate the target month and year for this index
+      const targetMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - (5 - index), 1);
+      const targetMonthNum = targetMonth.getMonth();
+      const targetYear = targetMonth.getFullYear();
+      
       const monthData = data.filter(item => {
         const dateValue = item[dateField];
         if (typeof dateValue !== 'string' && typeof dateValue !== 'number') return false;
         const date = new Date(dateValue);
-        return date.getMonth() === index;
+        return date.getMonth() === targetMonthNum && date.getFullYear() === targetYear;
       });
       
       const value = monthData.length;
+      
+      // Calculate previous month for growth comparison
+      const prevMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - (6 - index), 1);
+      const prevMonthNum = prevMonthDate.getMonth();
+      const prevYear = prevMonthDate.getFullYear();
+      
       const prevMonth = index > 0 ? data.filter(item => {
         const dateValue = item[dateField];
         if (typeof dateValue !== 'string' && typeof dateValue !== 'number') return false;
         const date = new Date(dateValue);
-        return date.getMonth() === index - 1;
+        return date.getMonth() === prevMonthNum && date.getFullYear() === prevYear;
       }).length : 0;
       
       const growth = prevMonth > 0 ? Math.round(((value - prevMonth) / prevMonth) * 100) : 0;
