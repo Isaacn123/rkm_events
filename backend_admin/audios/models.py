@@ -28,7 +28,6 @@ class Audio(models.Model):
     description = models.TextField(blank=True, null=True, help_text="Description of the audio content")
     audio_file = models.FileField(
         upload_to=audio_file_path,
-        max_length=500,
         help_text="Upload audio file (MP3, WAV, M4A, AAC, OGG)"
     )
     # Cover image fields
@@ -166,9 +165,7 @@ class Audio(models.Model):
             from datetime import timedelta
             
             # Save file temporarily for duration detection
-            # Extract just the filename without path
-            filename = os.path.basename(audio_file.name)
-            temp_path = f"/tmp/duration_check_{self.id}_{filename}"
+            temp_path = f"/tmp/duration_check_{self.id}_{audio_file.name}"
             with open(temp_path, 'wb+') as destination:
                 for chunk in audio_file.chunks():
                     destination.write(chunk)
