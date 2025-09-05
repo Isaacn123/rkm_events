@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('audios', '0003_alter_events_date'),
+        ('audios', '0004_audio_b2_download_url_audio_b2_file_id_and_more'),
     ]
 
     operations = [
